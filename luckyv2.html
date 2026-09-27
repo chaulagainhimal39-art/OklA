@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lucky Spin V2</title>
+
+<style>
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:linear-gradient(145deg,#090014,#35006b,#100018);
+  color:white;
+  min-height:100vh;
+}
+
+header{
+  padding:20px 16px 10px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.logo{
+  font-size:25px;
+  font-weight:bold;
+}
+
+.level{
+  font-size:13px;
+  color:#ddd;
+}
+
+.wallet{
+  margin:10px 15px;
+  padding:15px 18px;
+  border-radius:18px;
+  background:rgba(255,255,255,.1);
+  display:flex;
+  justify-content:space-between;
+}
+
+.coins{
+  color:#ffd000;
+  font-size:21px;
+  font-weight:bold;
+}
+
+.container{
+  max-width:500px;
+  margin:auto;
+  padding:10px 15px 90px;
+}
+
+.screen{
+  display:none;
+}
+
+.active{
+  display:block;
+}
+
+.welcome{
+  padding:22px;
+  border-radius:22px;
+  background:linear-gradient(135deg,#6500b5,#b00078);
+  margin-bottom:18px;
+}
+
+.welcome h2{
+  margin-top:0;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+}
+
+.card{
+  background:rgba(255,255,255,.09);
+  border-radius:18px;
+  padding:20px 10px;
+  text-align:center;
+}
+
+.icon{
+  font-size:40px;
+}
+
+.card b{
+  display:block;
+  margin-top:8px;
+}
+
+.card small{
+  color:#bbb;
+}
+
+.game{
+  background:rgba(0,0,0,.35);
+  border-radius:22px;
+  padding:22px;
+  text-align:center;
+}
+
+.reels{
+  display:flex;
+  justify-content:center;
+  gap:9px;
+  margin:25px 0;
+}
+
+.reel{
+  width:85px;
+  height:85px;
+  background:white;
+  color:#111;
+  border-radius:15px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:43px;
+}
+
+button{
+  border:0;
+  border-radius:13px;
+  padding:13px 22px;
+  font-size:17px;
+  font-weight:bold;
+}
+
+.primary{
+  background:#ffd000;
+  color:#111;
+}
+
+.green{
+  background:#00c853;
+  color:white;
+}
+
+.back{
+  background:rgba(255,255,255,.12);
+  color:white;
+  margin-bottom:15px;
+}
+
+.message{
+  min-height:30px;
+  margin:18px 0;
+  font-weight:bold;
+}
+
+.wheel{
+  font-size:75px;
+  margin:20px;
+}
+
+.numbers{
+  display:flex;
+  justify-content:center;
+  gap:7px;
+  flex-wrap:wrap;
+  margin:15px 0;
+}
+
+.number{
+  background:#333;
+  color:white;
+  padding:10px 15px;
+}
+
+.number.selected{
+  background:#ffd000;
+  color:#111;
+}
+
+.cardface{
+  font-size:60px;
+  margin:25px;
+}
+
+.progress{
+  height:8px;
+  background:#333;
+  border-radius:10px;
+  overflow:hidden;
+  margin:10px 0;
+}
+
+.bar{
+  height:100%;
+  width:0%;
+  background:#ffd000;
+}
+
+.bottom{
+  position:fixed;
+  bottom:0;
+  left:0;
+  right:0;
+  height:68px;
+  background:#120b18;
+  display:flex;
+  justify-content:space-around;
+  align-items:center;
+}
+
+.nav{
+  background:none;
+  color:#aaa;
+  padding:7px;
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="logo">🎰 Lucky Spin</div>
+  <div class="level">LEVEL <b id="level">1</b></div>
+</header>
+
+<div class="wallet">
+  <span>🪙 Virtual Coins</span>
+  <span class="coins" id="coins">1000</span>
+</div>
+
+<div class="container">
+
+<!-- HOME -->
+<section id="home" class="screen active">
+
+  <div class="welcome">
+    <h2>Welcome! 👋</h2>
+    <p>Play games and collect virtual coins.</p>
+
+    <div class="progress">
+      <div class="bar" id="xpbar"></div>
+    </div>
+
+    <small>
+      XP: <span id="xp">0</span>/100
+    </small>
+  </div>
+
+  <div class="grid">
+
+    <div class="card" onclick="showScreen('slot')">
+      <div class="icon">🎰</div>
+      <b>Lucky Slots</b>
+      <small>Spin & win</small>
+    </div>
+
+    <div class="card" onclick="showScreen('wheelGame')">
+      <div class="icon">🎡</div>
+      <b>Lucky Wheel</b>
+      <small>Try your luck</small>
+    </div>
+
+    <div class="card" onclick="showScreen('cardsGame')">
+      <div class="icon">🃏</div>
+      <b>High Card</b>
+      <small>Beat the dealer</small>
+    </div>
+
+    <div class="card" onclick="showScreen('bonus')">
+      <div class="icon">🎁</div>
+      <b>Daily Bonus</b>
+      <small>Free coins</small>
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- SLOT -->
+<section id="slot" class="screen">
+
+  <button class="back" onclick="showScreen('home')">
+    ← Home
+  </button>
+
+  <div class="game">
+
+    <h2>🎰 Lucky Slots</h2>
+    <p>Spin cost: 50 virtual coins</p>
+
+    <div class="reels">
+      <div class="reel" id="reel1">🍒</div>
+      <div class="reel" id="reel2">🍋</div>
+      <div class="reel" id="reel3">🍇</div>
+    </div>
+
+    <button class="primary" id="spinButton" onclick="spinSlots()">
+      🎰 SPIN
+    </button>
+
+    <div class="message" id="slotMessage">
+      Good luck! 🍀
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- WHEEL -->
+<section id="wheelGame" class="screen">
+
+  <button class="back" onclick="showScreen('home')">
+    ← Home
+  </button>
+
+  <div class="game">
+
+    <h2>🎡 Lucky Wheel</h2>
+
+    <div class="wheel" id="wheelIcon">🎡</div>
+
+    <p>Choose a number</p>
+
+    <div class="numbers">
+
+      <button class="number" onclick="selectNumber(1,this)">1</button>
+      <button class="number" onclick="selectNumber(2,this)">2</button>
+      <button class="number" onclick="selectNumber(3,this)">3</button>
+      <button class="number" onclick="selectNumber(4,this)">4</button>
+      <button class="number" onclick="selectNumber(5,this)">5</button>
+
+    </div>
+
+    <button class="primary" onclick="spinWheel()">
+      🎡 SPIN - 30
+    </button>
+
+    <div class="message" id="wheelMessage">
+      Choose a number.
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- CARDS -->
+<section id="cardsGame" class="screen">
+
+  <button class="back" onclick="showScreen('home')">
+    ← Home
+  </button>
+
+  <div class="game">
+
+    <h2>🃏 High Card</h2>
+
+    <p>You vs Dealer</p>
+
+    <div class="cardface" id="cardFace">
+      🃏
+    </div>
+
+    <button class="primary" onclick="playCards()">
+      🃏 PLAY - 40
+    </button>
+
+    <div class="message" id="cardMessage">
+      Can you beat the dealer?
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- BONUS -->
+<section id="bonus" class="screen">
+
+  <button class="back" onclick="showScreen('home')">
+    ← Home
+  </button>
+
+  <div class="game">
+
+    <h2>🎁 Daily Bonus</h2>
+
+    <p>Collect 500 free virtual coins once every day.</p>
+
+    <h1>+500 🪙</h1>
+
+    <button class="green" onclick="claimBonus()">
+      🎁 CLAIM BONUS
+    </button>
+
+    <div class="message" id="bonusMessage"></div>
+
+  </div>
+
+</section>
+
+</div>
+
+
+<!-- BOTTOM MENU -->
+
+<div class="bottom">
+
+  <button class="nav" onclick="showScreen('home')">
+    🏠<br>Home
+  </button>
+
+  <button class="nav" onclick="showScreen('slot')">
+    🎰<br>Games
+  </button>
+
+  <button class="nav" onclick="showScreen('bonus')">
+    🎁<br>Bonus
+  </button>
+
+</div>
+
+
+<script>
+
+let coins = Number(localStorage.getItem("luckyCoins")) || 1000;
+let xp = Number(localStorage.getItem("luckyXP")) || 0;
+let level = Number(localStorage.getItem("luckyLevel")) || 1;
+
+let selectedNumber = null;
+
+const symbols = ["🍒","🍋","🍇","🍊","⭐","💎"];
+
+
+function updateDisplay(){
+
+  document.getElementById("coins").textContent = coins;
+
+  document.getElementById("xp").textContent = xp;
+
+  document.getElementById("level").textContent = level;
+
+  document.getElementById("xpbar").style.width = xp + "%";
+
+  localStorage.setItem("luckyCoins",coins);
+  localStorage.setItem("luckyXP",xp);
+  localStorage.setItem("luckyLevel",level);
+
+}
+
+
+function addXP(amount){
+
+  xp += amount;
+
+  if(xp >= 100){
+
+    xp -= 100;
+    level++;
+    coins += 300;
+
+  }
+
+  updateDisplay();
+
+}
+
+
+function showScreen(id){
+
+  const screens = document.querySelectorAll(".screen");
+
+  screens.forEach(function(screen){
+
+    screen.classList.remove("active");
+
+  });
+
+  document.getElementById(id).classList.add("active");
+
+}
+
+
+function spinSlots(){
+
+  if(coins < 50){
+
+    document.getElementById("slotMessage").textContent =
+    "❌ Not enough virtual coins.";
+
+    return;
+
+  }
+
+  coins -= 50;
+
+  updateDisplay();
+
+  const button = document.getElementById("spinButton");
+
+  button.disabled = true;
+
+  let count = 0;
+
+  const animation = setInterval(function(){
+
+    document.getElementById("reel1").textContent =
+    symbols[Math.floor(Math.random()*symbols.length)];
+
+    document.getElementById("reel2").textContent =
+    symbols[Math.floor(Math.random()*symbols.length)];
+
+    document.getElementById("reel3").textContent =
+    symbols[Math.floor(Math.random()*symbols.length)];
+
+    count++;
+
+    if(count >= 12){
+
+      clearInterval(animation);
+
+      finishSlots();
+
+      button.disabled = false;
+
+    }
+
+  },100);
+
+}
+
+
+function finishSlots(){
+
+  const a = symbols[Math.floor(Math.random()*symbols.length)];
+  const b = symbols[Math.floor(Math.random()*symbols.length)];
+  const c = symbols[Math.floor(Math.random()*symbols.length)];
+
+  document.getElementById("reel1").textContent = a;
+  document.getElementById("reel2").textContent = b;
+  document.getElementById("reel3").textContent = c;
+
+  if(a === b && b === c){
+
+    let prize = 500;
+
+    if(a === "⭐"){
+      prize = 1000;
+    }
+
+    if(a === "💎"){
+      prize = 2000;
+    }
+
+    coins += prize;
+
+    addXP(20);
+
+    document.getElementById("slotMessage").textContent =
+    "🎉 JACKPOT! +" + prize + " coins!";
+
+  }
+
+  else if(a === b || b === c || a === c){
+
+    coins += 100;
+
+    addXP(10);
+
+    document.getElementById("slotMessage").textContent =
+    "✨ MATCH! +100 coins!";
+
+  }
+
+  else{
+
+    addXP(2);
+
+    document.getElementById("slotMessage").textContent =
+    "😅 No match. Try again!";
+
+  }
+
+  updateDisplay();
+
+}
+
+
+function selectNumber(number,button){
+
+  selectedNumber = number;
+
+  const buttons = document.querySelectorAll(".number");
+
+  buttons.forEach(function(item){
+
+    item.classList.remove("selected");
+
+  });
+
+  button.classList.add("selected");
+
+  document.getElementById("wheelMessage").textContent =
+  "You selected " + number;
+
+}
+
+
+function spinWheel(){
+
+  if(selectedNumber === null){
+
+    document.getElementById("wheelMessage").textContent =
+    "⚠️ Please choose a number first.";
+
+    return;
+
+  }
+
+  if(coins < 30){
+
+    document.getElementById("wheelMessage").textContent =
+    "❌ Not enough virtual coins.";
+
+    return;
+
+  }
+
+  coins -= 30;
+
+  updateDisplay();
+
+  document.getElementById("wheelIcon").textContent = "🔄";
+
+  setTimeout(function(){
+
+    const result = Math.floor(Math.random()*5)+1;
+
+    document.getElementById("wheelIcon").textContent = result;
+
+    if(result === selectedNumber){
+
+      coins += 150;
+
+      addXP(15);
+
+      document.getElementById("wheelMessage").textContent =
+      "🎉 Correct! +150 coins!";
+
+    }
+
+    else{
+
+      addXP(2);
+
+      document.getElementById("wheelMessage").textContent =
+      "Result: " + result + ". Try again!";
+
+    }
+
+    updateDisplay();
+
+  },700);
+
+}
+
+
+function playCards(){
+
+  if(coins < 40){
+
+    document.getElementById("cardMessage").textContent =
+    "❌ Not enough virtual coins.";
+
+    return;
+
+  }
+
+  coins -= 40;
+
+  const player = Math.floor(Math.random()*13)+1;
+  const dealer = Math.floor(Math.random()*13)+1;
+
+  const cardNames = [
+    "A","2","3","4","5","6","7",
+    "8","9","10","J","Q","K"
+  ];
+
+  document.getElementById("cardFace").textContent =
+  cardNames[player-1] + " 🆚 " + cardNames[dealer-1];
+
+  if(player > dealer){
+
+    coins += 100;
+
+    addXP(15);
+
+    document.getElementById("cardMessage").textContent =
+    "🎉 You beat the dealer! +100 coins.";
+
+  }
+
+  else if(player === dealer){
+
+    coins += 40;
+
+    document.getElementById("cardMessage").textContent =
+    "🤝 Draw! Your coins returned.";
+
+  }
+
+  else{
+
+    addXP(2);
+
+    document.getElementById("cardMessage").textContent =
+    "😅 Dealer wins. Try again!";
+
+  }
+
+  updateDisplay();
+
+}
+
+
+function claimBonus(){
+
+  const today = new Date().toDateString();
+
+  const lastBonus = localStorage.getItem("luckyDailyBonus");
+
+  if(today === lastBonus){
+
+    document.getElementById("bonusMessage").textContent =
+    "⏰ You already collected today's bonus.";
+
+    return;
+
+  }
+
+  coins += 500;
+
+  addXP(10);
+
+  localStorage.setItem("luckyDailyBonus",today);
+
+  document.getElementById("bonusMessage").textContent =
+  "🎉 +500 virtual coins added!";
+
+  updateDisplay();
+
+}
+
+
+updateDisplay();
+
+</script>
+
+</body>
+</html>
